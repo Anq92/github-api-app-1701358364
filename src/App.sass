@@ -1,0 +1,28 @@
+@use 'base'
+    
+.app-container
+    @extend %flex-container-full-parent
+    flex-direction: column
+
+header
+    text-align: center
+    font-size: 3rem
+    font-weight: 700
+    color: white
+    flex-basis: 3rem
+    padding: 1rem
+    background-color: #8f3b76
+    
+footer
+    background-color: #8f3b76
+    flex-basis: 2rem
+    text-align: center
+    color: white
+    padding: 0.5rem
+
+main
+    display: flex
+    flex-direction: column
+    flex-grow: 1
+    align-items: center
+    background-color: white
