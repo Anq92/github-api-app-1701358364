@@ -1,14 +1,7 @@
 import "./LoginPage.sass";
-import { useEffect } from "react";
-
-const client_id = "389060375848c3349fc3";
+const client_id = import.meta.env.VITE_CLIENT_ID;
 
 function LoginPage() {
-  useEffect(() => {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    console.log(urlParams.get("code"));
-  }, []);
   function loginWithGithub() {
     window.location.assign(
       "https://github.com/login/oauth/authorize?client_id=" + client_id
