@@ -1,10 +1,10 @@
 import "./LoginPage.sass";
-const client_id = import.meta.env.VITE_CLIENT_ID;
+const clientId = import.meta.env.VITE_CLIENT_ID;
 
 function LoginPage() {
   function loginWithGithub() {
     window.location.assign(
-      "https://github.com/login/oauth/authorize?client_id=" + client_id
+      `https://github.com/login/oauth/authorize?client_id=${clientId}`
     );
   }
 

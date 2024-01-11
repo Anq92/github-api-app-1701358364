@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { UserData } from "./types";
 import Dashboard from "./dashboard/Dashboard";
 
+const serverUrl = import.meta.env.VITE_SERVER_URL;
+
 function App() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -16,7 +18,7 @@ function App() {
   const [codeFromGithub] = useState(codeParam);
 
   async function getAccessToken(codeParam: string) {
-    await fetch("http://localhost:4000/getAccessToken?code=" + codeParam, {
+    await fetch(`${serverUrl}token?code=${codeParam}`, {
       method: "GET",
     })
       .then((response) => {
