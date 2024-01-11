@@ -1,0 +1,47 @@
+@use 'base'
+    
+.app-container
+    @extend %flex-container-full-parent
+    flex-direction: column
+
+header
+    position: sticky
+    text-align: center
+    font-size: 3rem
+    font-weight: 700
+    color: white
+    flex-basis: 3rem
+    padding: 1rem
+    background-color: #8f3b76
+    
+footer
+    background-color: #8f3b76
+    flex-basis: 2rem
+    text-align: center
+    color: white
+    padding: 0.5rem
+
+main
+    display: flex
+    flex-direction: column
+    flex-grow: 1
+    align-items: center
+    background-color: white
+
+.logout-button
+    position: absolute
+    right: 1rem
+    top: 1rem
+    display: flex
+    align-items: center
+    height: 4rem
+    background-color: white
+    border: none
+    border-radius: 0.5rem
+    cursor: pointer    
+
+    span
+        font-size: 1.5rem
+        padding: 0.6rem
+        color: #8f3b76
+   
