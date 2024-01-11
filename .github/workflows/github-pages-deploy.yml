@@ -3,7 +3,6 @@ name: Deploy static content to Pages
 on:
   push:
     branches: 
-      -main
       -"feature/login-with-github"
     paths: 
       -'client/**'
