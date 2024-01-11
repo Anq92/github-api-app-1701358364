@@ -2,8 +2,7 @@ name: Deploy static content to Pages
 
 on:
   push:
-    branches: 
-      -main
+    branches: -main
       -"feature/login-with-github"
     paths: -'client/**'
   workflow_dispatch:
@@ -39,9 +38,9 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build
-          env:
-            VITE_CLIENT_ID: ${{vars.VITE_CLIENT_ID}}
-            VITE_SERVER_URL: ${{vars.VITE_SERVER_URL}}
+        env:
+          VITE_CLIENT_ID: ${{vars.VITE_CLIENT_ID}}
+          VITE_SERVER_URL: ${{vars.VITE_SERVER_URL}}
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
