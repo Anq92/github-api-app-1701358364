@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths: 
-      -'client/**'
-      -'.github/workflows/github-pages-deploy.yml'
+      - 'client/**'
+      - '.github/workflows/github-pages-deploy.yml'
   workflow_dispatch:
 
 permissions:
