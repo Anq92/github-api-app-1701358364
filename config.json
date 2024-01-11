@@ -1,3 +1,4 @@
 {
-  "githubAppSecret": "replace"
+  "port": 4001,
+  "applicationId": "764390"
 }
