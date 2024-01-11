@@ -2,8 +2,8 @@ name: Deploy static content to Pages
 
 on:
   push:
-    branches: 
-      -"feature/login-with-github"
+    branches:
+      - main
     paths: 
       -'client/**'
       -'.github/workflows/github-pages-deploy.yml'
