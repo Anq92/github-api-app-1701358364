@@ -1,6 +1,6 @@
 import "./LoginPage.sass";
+import imgUrl from "/assets/github-mark-white.svg";
 const clientId = import.meta.env.VITE_CLIENT_ID;
-
 function LoginPage() {
   function loginWithGithub() {
     window.location.assign(
@@ -12,7 +12,7 @@ function LoginPage() {
     <div className="login-page-container">
       <button className="login-button" onClick={loginWithGithub}>
         <span>Log in with GitHub</span>
-        <img className="gh-logo" src="src/assets/github-mark-white.svg"></img>
+        <img className="gh-logo" src={imgUrl}></img>
       </button>
     </div>
   );
