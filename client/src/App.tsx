@@ -5,7 +5,7 @@ import { UserData } from "./types";
 import Dashboard from "./dashboard/Dashboard";
 
 const serverUrl = import.meta.env.VITE_SERVER_URL;
-
+const baseUrl = import.meta.env.BASE_URL;
 function App() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -28,7 +28,7 @@ function App() {
         if (data.access_token) {
           localStorage.setItem("accessToken", data.access_token);
           setAccessToken(data.access_token);
-          window.location.assign("/");
+          window.location.assign(baseUrl);
         }
       });
   }
