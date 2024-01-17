@@ -35,7 +35,7 @@ type UserData = {
   url: URL;
 };
 
-type RepoDataResponse = Response & Endpoints["GET /user/repos"]["response"];
+type RepoDataResponse = Endpoints["GET /user/repos"]["response"];
 type RepoData = RepoDataResponse["data"][1];
 
 export type { UserData, RepoData };
