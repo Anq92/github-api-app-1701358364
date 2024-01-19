@@ -1,3 +1,5 @@
+import { Endpoints } from "@octokit/types";
+
 type UserData = {
   avatar_url: URL;
   bio: string;
@@ -33,4 +35,9 @@ type UserData = {
   url: URL;
 };
 
-export type { UserData };
+type RepoDataResponse = Endpoints["GET /user/repos"]["response"];
+type RepoData = RepoDataResponse["data"][1];
+
+export type { UserData, RepoData };
+
+
