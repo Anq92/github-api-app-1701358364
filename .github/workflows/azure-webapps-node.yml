@@ -8,7 +8,7 @@ on:
   
 env:
     AZURE_WEBAPP_NAME: app-gw-test-github     # set this to your application's name
-    AZURE_WEBAPP_PACKAGE_PATH: '.'            # set this to the path to your web app project, defaults to the repository root
+    AZURE_WEBAPP_PACKAGE_PATH: './server'     # set this to the path to your web app project, defaults to the repository root
     NODE_VERSION: '18.x'                      # set this to the node version to use
   
 permissions:
@@ -25,8 +25,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-  
+          cache-dependency-path: "server"
       - name: npm install
+        working-directory: ./server
         run: |
           npm install
           npm run build --if-present
@@ -36,12 +37,13 @@ jobs:
         with:
           envkey_CLIENT_ID: ${{ vars.VITE_CLIENT_ID }}
           envkey_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          directory: ./server
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: node-app
-          path: .
+          path: "./server"
   
     deploy:
       permissions:
@@ -57,7 +59,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: node-app
-  
+          path: "./server"
       - name: 'Deploy to Azure WebApp'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
