@@ -1,80 +1,59 @@
 import "./App.sass";
 import LoginPage from "./login_page/LoginPage";
-import { useState, useEffect } from "react";
-import { UserData } from "./types";
+import { useState, useEffect, useMemo } from "react";
 import Dashboard from "./dashboard/Dashboard";
+import { LoginService } from "./service/LoginService";
 
-const serverUrl = import.meta.env.VITE_SERVER_URL;
 const baseUrl = import.meta.env.BASE_URL;
+
 function App() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  const codeParam = urlParams.get("code");
 
-  const [accessToken, setAccessToken] = useState(
-    localStorage.getItem("accessToken")
-  );
-  const [userData, setUserData] = useState<UserData>();
-  const [codeFromGithub] = useState(codeParam);
+  const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
+  const [codeFromGithub, setCodeFromGithub] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  async function getAccessToken(codeParam: string) {
-    await fetch(`${serverUrl}token?code=${codeParam}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        if (data.access_token) {
-          localStorage.setItem("accessToken", data.access_token);
-          setAccessToken(data.access_token);
-          window.location.assign(baseUrl);
-        }
-      });
-  }
-
-  const getUserData = async () => {
-    await fetch("https://api.github.com/user", {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + accessToken,
-      },
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setUserData(data);
-      });
-  };
+  const loginService = useMemo(() => {
+    return new LoginService();
+  }, []);
 
   useEffect(() => {
-    if (codeFromGithub && accessToken === null) {
-      getAccessToken(codeFromGithub);
+    const handleGithubCode = () => {
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const codeParam = urlParams.get("code");
+      codeParam && setCodeFromGithub(codeParam);
     }
-  });
 
-  useEffect(() => {
-    if (accessToken && !userData) {
-      getUserData();
+    const authorize = async () => {
+      const accessToken = await loginService.getAccessToken(codeFromGithub);
+
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+        window.location.assign(baseUrl);
+      } else {
+        setErrorMessage("Authorization failed. Please try later.")
+      }
     }
-  });
+
+    handleGithubCode();
+
+    if (codeFromGithub && !accessToken) {
+      authorize();
+    }
+  }, [setCodeFromGithub, loginService, codeFromGithub, accessToken]);
 
   function logout() {
     localStorage.removeItem("accessToken");
-    setUserData(undefined);
-    setAccessToken(null);
+    setAccessToken("");
   }
 
   const fetchingToken = <>Fetching authentication token...</>;
-  const fetchingData = <>Fetching user data...</>;
   let content = <></>;
+
   if (codeFromGithub && !accessToken) {
     content = fetchingToken;
-  } else if (accessToken && !userData) {
-    content = fetchingData;
-  } else if (userData) {
-    content = <Dashboard userData={userData} />;
+  } else if (accessToken) {
+    content = <Dashboard />;
   } else {
     content = <LoginPage />;
   }
@@ -89,7 +68,7 @@ function App() {
           </button>
         )}
       </header>
-      <main>{content}</main>
+      <main>{errorMessage || content}</main>
       <footer>Developed by Anna Wilczura</footer>
     </div>
   );
