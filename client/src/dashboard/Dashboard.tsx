@@ -41,7 +41,7 @@ function Dashboard() {
       ? <>No repositories found</>
       : <>
         <RecentRepo {...githubReposData[0]} />
-        <ReposBrowser reposData={githubReposData} />
+        <ReposBrowser reposData={githubReposData} setReposData={setGithubReposData} />
       </>
   return (
     <>
