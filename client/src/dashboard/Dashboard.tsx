@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { UserData } from "../types";
 import RecentRepo from "./recent_repo/RecentRepo";
+import ReposBrowser from "./repos_browser/ReposBrowser";
 import { RepoData } from "../types";
 import { UserService } from "../service/UserService";
 
@@ -38,7 +39,10 @@ function Dashboard() {
     ? <>Loading</>
     : githubReposData === null
       ? <>No repositories found</>
-      : <RecentRepo {...githubReposData[0]} />
+      : <>
+        <RecentRepo {...githubReposData[0]} />
+        <ReposBrowser reposData={githubReposData} setReposData={setGithubReposData} />
+      </>
   return (
     <>
       <h1>{heading}</h1>
