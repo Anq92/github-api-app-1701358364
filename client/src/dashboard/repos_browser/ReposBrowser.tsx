@@ -106,6 +106,7 @@ function ReposBrowser({ ...props }) {
                 <div className='search-result'>
                     <span><b>Name:</b> {displayedRepo.name}</span>
                     <span><b>Stars:</b> {displayedRepo.stargazers_count}</span>
+                    <button id="exclude">Exclude</button>
                 </div>}
         </div>
     );
