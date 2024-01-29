@@ -63,6 +63,11 @@ function ReposBrowser({ ...props }) {
         name: "no matches found..."
     }
 
+    const handleExcludeButtonOnClick = () => {
+        setDisplayedRepo(null);
+        setSelectedRepo(null);
+    }
+
     useEffect(() => {
         if (isShown) {
             matches.current = !!filteredRepos!.length;
@@ -106,7 +111,7 @@ function ReposBrowser({ ...props }) {
                 <div className='search-result'>
                     <span><b>Name:</b> {displayedRepo.name}</span>
                     <span><b>Stars:</b> {displayedRepo.stargazers_count}</span>
-                    <button id="exclude">Exclude</button>
+                    <button id="exclude" onClick={handleExcludeButtonOnClick}>Exclude</button>
                 </div>}
         </div>
     );
