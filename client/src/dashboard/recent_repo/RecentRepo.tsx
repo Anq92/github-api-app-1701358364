@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
     RepoData
 } from "../../types";
@@ -6,9 +5,6 @@ import "./RecentRepo.sass";
 
 function RecentRepo(props: RepoData) {
 
-    useEffect(() => {
-        console.log(props);
-    })
     return (
         <div >
             <h2>Lately you've been working on:</h2>

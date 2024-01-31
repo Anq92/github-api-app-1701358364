@@ -35,9 +35,12 @@ type UserData = {
   url: URL;
 };
 
+type ReposBrowserProps = {
+  reposData: RepoData[];
+}
 type RepoDataResponse = Endpoints["GET /user/repos"]["response"];
 type RepoData = RepoDataResponse["data"][1];
 
-export type { UserData, RepoData };
+export type { UserData, RepoData, ReposBrowserProps };
 
 

@@ -3,12 +3,10 @@ import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.css';
 import './ReposBrowser.sass';
 import { AutoComplete, AutoCompleteChangeEvent, AutoCompleteSelectEvent } from "primereact/autocomplete";
-import { RepoData } from "../../types";
+import { RepoData, ReposBrowserProps } from "../../types";
 import { useEffect, useRef, useState } from "react";
 
-function ReposBrowser({ ...props }) {
-
-    const reposData = props.reposData;
+function ReposBrowser({ reposData }: ReposBrowserProps) {
 
     const [selectedRepo, setSelectedRepo] = useState<RepoData | null>(null);
     const [displayedRepo, setDisplayedRepo] = useState<RepoData | null>(null);
@@ -17,15 +15,18 @@ function ReposBrowser({ ...props }) {
 
     const matches = useRef<boolean | null>(null);
     const autoCompleteRef = useRef<AutoComplete>(null);
+    const includedRepos = useRef<RepoData[]>([]);
+    const excludedRepos = useRef<RepoData[]>([]);
+    const excludedReposIds = useRef<Array<string>>([]);
 
     const searchRepo = (event: { query: string }) => {
         setTimeout(() => {
             let _filteredRepos;
             if (!event.query.trim().length) {
-                _filteredRepos = [...reposData];
+                _filteredRepos = [...includedRepos.current];
             }
             else {
-                _filteredRepos = reposData.filter((repo: RepoData) => {
+                _filteredRepos = includedRepos.current.filter((repo: RepoData) => {
                     return repo.name.toLowerCase().includes(event.query.toLowerCase());
                 });
             }
@@ -64,14 +65,39 @@ function ReposBrowser({ ...props }) {
     }
 
     const handleExcludeButtonOnClick = () => {
+
+        excludedReposIds.current.push(displayedRepo!.id.toString());
+        excludedRepos.current.push(displayedRepo!);
+        includedRepos.current = includedRepos.current.filter((repo) => {
+            return repo.id !== displayedRepo!.id
+        });
         setDisplayedRepo(null);
         setSelectedRepo(null);
     }
 
     useEffect(() => {
+        const excludedReposIdsString = localStorage.getItem("excluded-ids");
+
+        if (excludedReposIdsString) {
+            const excludedReposIdsArr = JSON.parse(excludedReposIdsString);
+            excludedReposIds.current = excludedReposIdsArr;
+            if (excludedReposIdsArr.length) {
+                includedRepos.current = reposData.filter((repo) => {
+                    return !excludedReposIdsArr.includes(`${repo.id}`);
+                })
+                excludedRepos.current = reposData.filter((repo) => {
+                    return excludedReposIdsArr.includes(`${repo.id}`);
+                })
+            }
+        } else {
+            includedRepos.current = [...reposData];
+        }
+    }, [reposData]);
+
+    useEffect(() => {
         if (isShown) {
             matches.current = !!filteredRepos!.length;
-
+            const overlay = autoCompleteRef!.current!.getOverlay();
             const preventHighlight = (e: KeyboardEvent) => {
                 if (e.key === "ArrowDown" || e.key === "ArrowUp") {
                     e.stopImmediatePropagation();
@@ -79,12 +105,15 @@ function ReposBrowser({ ...props }) {
             }
 
             if (matches.current === false) {
-                const overlay = autoCompleteRef!.current!.getOverlay();
+
                 overlay.style.pointerEvents = "none";
                 window.addEventListener("keydown", preventHighlight, true);
             }
 
-            return () => { window.removeEventListener("keydown", preventHighlight, true) };
+            return () => {
+                window.removeEventListener("keydown", preventHighlight, true);
+                overlay.style.pointerEvents = "auto";
+            };
         }
 
     }, [isShown, filteredRepos])
