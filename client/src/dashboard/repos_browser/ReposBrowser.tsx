@@ -6,7 +6,7 @@ import { AutoComplete, AutoCompleteChangeEvent, AutoCompleteSelectEvent } from "
 import { RepoData, ReposBrowserProps } from "../../types";
 import { useEffect, useRef, useState } from "react";
 
-function ReposBrowser({ reposData }: ReposBrowserProps) {
+function ReposBrowser({ setExcludedListIsVisible, includedRepos, excludedReposIds, excludedRepos, reposData }: ReposBrowserProps) {
 
     const [selectedRepo, setSelectedRepo] = useState<RepoData | null>(null);
     const [displayedRepo, setDisplayedRepo] = useState<RepoData | null>(null);
@@ -15,9 +15,6 @@ function ReposBrowser({ reposData }: ReposBrowserProps) {
 
     const matches = useRef<boolean | null>(null);
     const autoCompleteRef = useRef<AutoComplete>(null);
-    const includedRepos = useRef<RepoData[]>([]);
-    const excludedRepos = useRef<RepoData[]>([]);
-    const excludedReposIds = useRef<Array<string>>([]);
 
     const searchRepo = (event: { query: string }) => {
         setTimeout(() => {
@@ -65,12 +62,12 @@ function ReposBrowser({ reposData }: ReposBrowserProps) {
     }
 
     const handleExcludeButtonOnClick = () => {
-
         excludedReposIds.current.push(displayedRepo!.id.toString());
         excludedRepos.current.push(displayedRepo!);
         includedRepos.current = includedRepos.current.filter((repo) => {
             return repo.id !== displayedRepo!.id
         });
+        localStorage.setItem("excluded-ids", JSON.stringify(excludedReposIds.current));
         setDisplayedRepo(null);
         setSelectedRepo(null);
     }
@@ -92,7 +89,7 @@ function ReposBrowser({ reposData }: ReposBrowserProps) {
         } else {
             includedRepos.current = [...reposData];
         }
-    }, [reposData]);
+    }, [reposData, excludedRepos, excludedReposIds, includedRepos]);
 
     useEffect(() => {
         if (isShown) {
@@ -122,27 +119,36 @@ function ReposBrowser({ reposData }: ReposBrowserProps) {
     return (
         <div className='browser-container'>
             <h3>Search for repositories...</h3>
-            <AutoComplete
-                ref={autoCompleteRef}
-                forceSelection
-                value={selectedRepo}
-                suggestions={filteredRepos?.length ? filteredRepos : [noMatchesObj]}
-                completeMethod={searchRepo}
-                field="name"
-                onChange={handleOnChange}
-                onClear={handleOnClear}
-                onHide={handleOnHide}
-                onSelect={handleOnSelect}
-                onShow={handleOnShow}
-                placeholder="repository name"
-            />
-            {displayedRepo &&
+            <div className='search-bar-excluded-button-wrapper'>
+                <AutoComplete
+                    className="search-bar"
+                    ref={autoCompleteRef}
+                    forceSelection
+                    value={selectedRepo}
+                    suggestions={filteredRepos?.length ? filteredRepos : [noMatchesObj]}
+                    completeMethod={searchRepo}
+                    field="name"
+                    onChange={handleOnChange}
+                    onClear={handleOnClear}
+                    onHide={handleOnHide}
+                    onSelect={handleOnSelect}
+                    onShow={handleOnShow}
+                    placeholder="repository name"
+                />
+                <button onClick={() => setExcludedListIsVisible(true)}><span>display excluded</span></button>
+            </div>
+
+            {
+                displayedRepo &&
                 <div className='search-result'>
-                    <span><b>Name:</b> {displayedRepo.name}</span>
-                    <span><b>Stars:</b> {displayedRepo.stargazers_count}</span>
+                    <div className='displayed-repo-props'>
+                        <span><b>Name: </b> {" " + displayedRepo.name}</span>
+                        <span><b>Stars:</b> {displayedRepo.stargazers_count}</span>
+                    </div>
                     <button id="exclude" onClick={handleExcludeButtonOnClick}>Exclude</button>
-                </div>}
-        </div>
+                </div>
+            }
+        </div >
     );
 }
 
