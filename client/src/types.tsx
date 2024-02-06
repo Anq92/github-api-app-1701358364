@@ -1,4 +1,5 @@
 import { Endpoints } from "@octokit/types";
+import { Dispatch, MutableRefObject, SetStateAction } from "react";
 
 type UserData = {
   avatar_url: URL;
@@ -35,9 +36,22 @@ type UserData = {
   url: URL;
 };
 
+type ExcludedReposListProps = {
+  data: MutableRefObject<RepoData[]>;
+  includedRepos: MutableRefObject<RepoData[]>;
+  excludedReposIds: MutableRefObject<Array<string>>;
+  setIsVisible: Dispatch<SetStateAction<boolean>>;
+}
+type ReposBrowserProps = {
+  setExcludedListIsVisible: Dispatch<SetStateAction<boolean>>;
+  includedRepos: MutableRefObject<RepoData[]>;
+  excludedReposIds: MutableRefObject<Array<string>>;
+  excludedRepos: MutableRefObject<RepoData[]>;
+  reposData: RepoData[];
+}
 type RepoDataResponse = Endpoints["GET /user/repos"]["response"];
 type RepoData = RepoDataResponse["data"][1];
 
-export type { UserData, RepoData };
+export type { UserData, RepoData, ReposBrowserProps, ExcludedReposListProps };
 
 

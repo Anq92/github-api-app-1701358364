@@ -3,12 +3,10 @@ import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.css';
 import './ReposBrowser.sass';
 import { AutoComplete, AutoCompleteChangeEvent, AutoCompleteSelectEvent } from "primereact/autocomplete";
-import { RepoData } from "../../types";
+import { RepoData, ReposBrowserProps } from "../../types";
 import { useEffect, useRef, useState } from "react";
 
-function ReposBrowser({ ...props }) {
-
-    const reposData = props.reposData;
+function ReposBrowser({ setExcludedListIsVisible, includedRepos, excludedReposIds, excludedRepos, reposData }: ReposBrowserProps) {
 
     const [selectedRepo, setSelectedRepo] = useState<RepoData | null>(null);
     const [displayedRepo, setDisplayedRepo] = useState<RepoData | null>(null);
@@ -22,10 +20,10 @@ function ReposBrowser({ ...props }) {
         setTimeout(() => {
             let _filteredRepos;
             if (!event.query.trim().length) {
-                _filteredRepos = [...reposData];
+                _filteredRepos = [...includedRepos.current];
             }
             else {
-                _filteredRepos = reposData.filter((repo: RepoData) => {
+                _filteredRepos = includedRepos.current.filter((repo: RepoData) => {
                     return repo.name.toLowerCase().includes(event.query.toLowerCase());
                 });
             }
@@ -63,10 +61,40 @@ function ReposBrowser({ ...props }) {
         name: "no matches found..."
     }
 
+    const handleExcludeButtonOnClick = () => {
+        excludedReposIds.current.push(displayedRepo!.id.toString());
+        excludedRepos.current.push(displayedRepo!);
+        includedRepos.current = includedRepos.current.filter((repo) => {
+            return repo.id !== displayedRepo!.id
+        });
+        localStorage.setItem("excluded-ids", JSON.stringify(excludedReposIds.current));
+        setDisplayedRepo(null);
+        setSelectedRepo(null);
+    }
+
+    useEffect(() => {
+        const excludedReposIdsString = localStorage.getItem("excluded-ids");
+
+        if (excludedReposIdsString) {
+            const excludedReposIdsArr = JSON.parse(excludedReposIdsString);
+            excludedReposIds.current = excludedReposIdsArr;
+            if (excludedReposIdsArr.length) {
+                includedRepos.current = reposData.filter((repo) => {
+                    return !excludedReposIdsArr.includes(`${repo.id}`);
+                })
+                excludedRepos.current = reposData.filter((repo) => {
+                    return excludedReposIdsArr.includes(`${repo.id}`);
+                })
+            }
+        } else {
+            includedRepos.current = [...reposData];
+        }
+    }, [reposData, excludedRepos, excludedReposIds, includedRepos]);
+
     useEffect(() => {
         if (isShown) {
             matches.current = !!filteredRepos!.length;
-
+            const overlay = autoCompleteRef!.current!.getOverlay();
             const preventHighlight = (e: KeyboardEvent) => {
                 if (e.key === "ArrowDown" || e.key === "ArrowUp") {
                     e.stopImmediatePropagation();
@@ -74,12 +102,15 @@ function ReposBrowser({ ...props }) {
             }
 
             if (matches.current === false) {
-                const overlay = autoCompleteRef!.current!.getOverlay();
+
                 overlay.style.pointerEvents = "none";
                 window.addEventListener("keydown", preventHighlight, true);
             }
 
-            return () => { window.removeEventListener("keydown", preventHighlight, true) };
+            return () => {
+                window.removeEventListener("keydown", preventHighlight, true);
+                overlay.style.pointerEvents = "auto";
+            };
         }
 
     }, [isShown, filteredRepos])
@@ -88,26 +119,36 @@ function ReposBrowser({ ...props }) {
     return (
         <div className='browser-container'>
             <h3>Search for repositories...</h3>
-            <AutoComplete
-                ref={autoCompleteRef}
-                forceSelection
-                value={selectedRepo}
-                suggestions={filteredRepos?.length ? filteredRepos : [noMatchesObj]}
-                completeMethod={searchRepo}
-                field="name"
-                onChange={handleOnChange}
-                onClear={handleOnClear}
-                onHide={handleOnHide}
-                onSelect={handleOnSelect}
-                onShow={handleOnShow}
-                placeholder="repository name"
-            />
-            {displayedRepo &&
+            <div className='search-bar-excluded-button-wrapper'>
+                <AutoComplete
+                    className="search-bar"
+                    ref={autoCompleteRef}
+                    forceSelection
+                    value={selectedRepo}
+                    suggestions={filteredRepos?.length ? filteredRepos : [noMatchesObj]}
+                    completeMethod={searchRepo}
+                    field="name"
+                    onChange={handleOnChange}
+                    onClear={handleOnClear}
+                    onHide={handleOnHide}
+                    onSelect={handleOnSelect}
+                    onShow={handleOnShow}
+                    placeholder="repository name"
+                />
+                <button onClick={() => setExcludedListIsVisible(true)}><span>display excluded</span></button>
+            </div>
+
+            {
+                displayedRepo &&
                 <div className='search-result'>
-                    <span><b>Name:</b> {displayedRepo.name}</span>
-                    <span><b>Stars:</b> {displayedRepo.stargazers_count}</span>
-                </div>}
-        </div>
+                    <div className='displayed-repo-props'>
+                        <span><b>Name: </b> {" " + displayedRepo.name}</span>
+                        <span><b>Stars:</b> {displayedRepo.stargazers_count}</span>
+                    </div>
+                    <button id="exclude" onClick={handleExcludeButtonOnClick}>Exclude</button>
+                </div>
+            }
+        </div >
     );
 }
 
